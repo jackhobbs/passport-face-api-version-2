@@ -128,14 +128,6 @@ def crop_face():
         # Choose largest face
         x, y, w, h = max(faces, key=lambda f: f[2] * f[3])
 
-"""         # Add 50 % margin
-        mx, my = int(w * .5), int(h * .5)
-        x1, y1 = max(x - mx, 0), max(y - my, 0)
-        x2, y2 = min(x + w + mx, img.shape[1]), min(y + h + my, img.shape[0])
-
-        cropped = img[y1:y2, x1:x2]
-        resized = cv2.resize(cropped, (600, 600)) """
-
         # Add 100% margin (for Aadhaar-style framing)
         margin_pct = 1.0
         mx, my = int(w * margin_pct), int(h * margin_pct)
