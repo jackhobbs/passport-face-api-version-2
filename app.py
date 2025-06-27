@@ -53,7 +53,7 @@ HTML_TEMPLATE = """
         <p><strong>Returns:</strong> Cropped face image (600×600 JPEG)</p>
         
         <h3>Example using curl:</h3>
-        <pre>curl -X POST -F "image=@your_photo.jpg" http://localhost:5000/crop-face --output cropped_face.jpg</pre>
+        <pre>curl -X POST -F "image=@your_photo.jpg" https://crop.ameegolabs.com/crop-face --output cropped_face.jpg</pre>
     </div>
 
     <script>
@@ -71,7 +71,7 @@ HTML_TEMPLATE = """
             resultDiv.innerHTML = '<p>Processing…</p>';
 
             /* KEY CHANGE: fetch absolute URL on port 5000 */
-            fetch('http://localhost:5000/crop-face', {
+            fetch('https://crop.ameegolabs.com/crop-face', {
                 method: 'POST',
                 body: formData
             })
