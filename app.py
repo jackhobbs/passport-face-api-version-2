@@ -12,9 +12,88 @@ CORS(app, resources={r"/crop-face": {"origins": "*"}})
 mp_face_detection = mp.solutions.face_detection
 
 # ---------- HTML template ----------
-HTML_TEMPLATE = """ 
-<!-- [unchanged HTML template - same as yours above] -->
-"""  # Use your original full HTML_TEMPLATE here
+HTML_TEMPLATE = """
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Face Cropper API</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
+        .container { text-align: center; }
+        .upload-area { border: 2px dashed #ccc; padding: 40px; margin: 20px 0; border-radius: 10px; }
+        .upload-area:hover { border-color: #007bff; }
+        input[type="file"] { margin: 20px 0; }
+        button { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .result { margin-top: 20px; }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Face Cropper API</h1>
+        <p>Upload an image to automatically crop and resize faces to 600 × 600 px</p>
+        
+        <div class="upload-area">
+            <form id="uploadForm" enctype="multipart/form-data">
+                <input type="file" id="imageInput" name="image" accept="image/*" required>
+                <br>
+                <button type="submit">Crop Face</button>
+            </form>
+        </div>
+        
+        <div id="result" class="result"></div>
+        
+        <h2>API Usage</h2>
+        <p><strong>Endpoint:</strong> <code>POST /crop-face</code></p>
+        <p><strong>Parameters:</strong> <code>image</code> (file upload)</p>
+        <p><strong>Returns:</strong> Cropped face image (600×600 JPEG)</p>
+        
+        <h3>Example using curl:</h3>
+        <pre>curl -X POST -F "image=@your_photo.jpg" https://crop.ameegolabs.com/crop-face --output cropped_face.jpg</pre>
+    </div>
+
+    <script>
+        document.getElementById('uploadForm').onsubmit = function (e) {
+            e.preventDefault();
+            const formData = new FormData();
+            const fileInput = document.getElementById('imageInput');
+            const resultDiv = document.getElementById('result');
+
+            if (!fileInput.files[0]) {
+                resultDiv.innerHTML = '<p class="error">Please select an image</p>';
+                return;
+            }
+            formData.append('image', fileInput.files[0]);
+            resultDiv.innerHTML = '<p>Processing…</p>';
+
+            /* KEY CHANGE: fetch absolute URL on port 5000 */
+            fetch('https://crop.ameegolabs.com/crop-face', {
+                method: 'POST',
+                body: formData
+            })
+            .then(resp => {
+                if (resp.ok) return resp.blob();
+                throw new Error('Error ' + resp.status);
+            })
+            .then(blob => {
+                const url = URL.createObjectURL(blob);
+                resultDiv.innerHTML = `
+                    <p class="success">Face cropped successfully!</p>
+                    <img src="${url}" alt="Cropped face" style="max-width: 300px; border:1px solid #ccc; border-radius:5px;">
+                    <br><br>
+                    <a href="${url}" download="cropped_face.jpg"><button>Download Image</button></a>
+                `;
+            })
+            .catch(err => {
+                resultDiv.innerHTML = '<p class="error">' + err.message + '</p>';
+            });
+        };
+    </script>
+</body>
+</html>
+"""
 
 # ---------- Routes ----------
 @app.route("/")
